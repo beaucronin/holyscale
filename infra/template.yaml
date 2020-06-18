@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  HolyScaleWebsiteS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+      BucketName: www.holyscale.cloud
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Id: MyPolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref HolyScaleWebsiteS3Bucket
+                - /*
+      Bucket: !Ref HolyScaleWebsiteS3Bucket
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt 
+      - HolyScaleWebsiteS3Bucket
+      - WebsiteURL
+    Description: Holy Scale website URL
+  S3BucketSecureURL:
+    Value: !Join 
+      - ''
+      - - 'https://'
+        - !GetAtt 
+          - HolyScaleWebsiteS3Bucket
+          - DomainName
+    Description: Name of Holy Scale website S3 bucket
